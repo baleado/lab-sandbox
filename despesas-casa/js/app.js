@@ -205,7 +205,7 @@ function renderCategories() {
             el('input', { type: 'text', id: inputId, autocomplete: 'off', value: c.name }),
             el('button', { type: 'submit', class: 'btn btn-primary', text: format('form.save') }),
             el('button', { type: 'button', class: 'btn btn-secondary', 'data-action': 'cat-rename-cancel', 'data-id': c.id, text: format('form.cancel') })),
-          el('p', { class: 'field-error', id: errId, hidden: true }))));
+          el('p', { class: 'field-error', id: errId, role: 'alert', hidden: true }))));
     } else {
       const buttons = el('span', { class: 'cat-buttons' },
         el('button', { type: 'button', class: 'btn btn-secondary', 'data-action': 'cat-rename', 'data-id': c.id },

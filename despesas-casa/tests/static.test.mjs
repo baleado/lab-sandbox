@@ -86,6 +86,12 @@ test('AC12: no positive tabindex; live regions exist; dialogs are labelled', () 
   assert.doesNotMatch(Object.values(JS).join('\n'), /window\.confirm|\bconfirm\(|\balert\(/, 'no native confirm/alert (pt-PT buttons)');
 });
 
+test('AC6/AC12 (WCAG 4.1.3): category name errors are announced without a focus change', () => {
+  // Enter in the field keeps focus there, so the error container itself must be a live region.
+  assert.match(HTML, /<p class="field-error" id="cat-new-error" role="alert" hidden><\/p>/);
+  assert.match(JS['app.js'], /el\('p', \{ class: 'field-error', id: errId, role: 'alert', hidden: true \}\)/);
+});
+
 test('AC2/AC12: amount is a text input with decimal keyboard; description max 100', () => {
   assert.match(HTML, /<input type="text" id="f-valor" inputmode="decimal"/);
   assert.match(HTML, /<input type="date" id="f-data"/);
