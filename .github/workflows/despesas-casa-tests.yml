@@ -1,0 +1,42 @@
+name: despesas-casa-tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  despesas-casa-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js (CI-only test tooling)
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+
+      - name: Show Node.js version
+        run: node --version
+
+      - name: Run tests (TZ=UTC)
+        run: node --test "despesas-casa/tests/*.test.mjs"
+        env:
+          TZ: UTC
+
+      - name: Run tests (TZ=America/New_York)
+        run: node --test "despesas-casa/tests/*.test.mjs"
+        env:
+          TZ: America/New_York
+
+      - name: Run tests (TZ=Pacific/Kiritimati, UTC+14)
+        run: node --test "despesas-casa/tests/*.test.mjs"
+        env:
+          TZ: Pacific/Kiritimati
