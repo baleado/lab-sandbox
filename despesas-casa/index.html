@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Despesas da casa</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Saltar para o conteúdo principal</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <h1>Despesas da casa</h1>
+      <span class="tag">Protótipo</span>
+    </div>
+  </header>
+
+  <div class="container banners">
+    <aside class="banner banner-notice" aria-label="Aviso sobre os dados">
+      <span class="banner-glyph" aria-hidden="true">ⓘ</span>
+      <p id="notice-text">Os dados ficam guardados só neste navegador, neste dispositivo, e não são enviados para nenhum servidor. Isto é um protótipo: não o use para dados financeiros reais. Se limpar os dados do navegador, as despesas perdem-se.</p>
+    </aside>
+    <div class="banner banner-warning" id="banner-unavailable" hidden>
+      <span class="banner-glyph" aria-hidden="true">⚠</span>
+      <p id="banner-unavailable-text"></p>
+    </div>
+    <div id="banner-quota-slot"></div>
+  </div>
+
+  <main id="conteudo" class="container" tabindex="-1">
+    <p id="loading">A carregar…</p>
+    <noscript><p>Esta aplicação precisa de JavaScript para funcionar.</p></noscript>
+
+    <section id="corrupt-panel" class="banner banner-error corrupt-panel" aria-labelledby="corrupt-text" hidden>
+      <span class="banner-glyph" aria-hidden="true">⚠</span>
+      <div>
+        <p id="corrupt-text"></p>
+        <button type="button" class="btn btn-danger-outline" id="btn-corrupt-reset">Eliminar todos os dados</button>
+      </div>
+    </section>
+
+    <div id="app" hidden>
+      <div class="toolbar">
+        <nav class="month-nav" aria-label="Mês">
+          <button type="button" class="btn btn-secondary btn-month" id="btn-prev"><span class="glyph" aria-hidden="true">‹</span><span class="btn-month-text">Mês anterior</span></button>
+          <p id="mes-atual" class="month-label"></p>
+          <button type="button" class="btn btn-secondary btn-month" id="btn-next"><span class="btn-month-text">Mês seguinte</span><span class="glyph" aria-hidden="true">›</span></button>
+          <button type="button" class="btn-link" id="btn-current" hidden>Ir para o mês atual</button>
+        </nav>
+        <button type="button" class="btn btn-primary btn-add" id="btn-add"><span aria-hidden="true">＋ </span>Registar despesa</button>
+      </div>
+      <p id="status" class="status-line" role="status" aria-live="polite"></p>
+
+      <div class="columns">
+        <section class="card" aria-labelledby="h-resumo">
+          <h2 id="h-resumo" tabindex="-1">Resumo mensal</h2>
+          <div class="summary-cards">
+            <div class="summary-card">
+              <p class="summary-label">Total gasto</p>
+              <p class="summary-total" id="sum-total"></p>
+            </div>
+            <div class="summary-card">
+              <p class="summary-count" id="sum-count"></p>
+            </div>
+          </div>
+          <div class="empty-state" id="sum-empty" hidden>
+            <p id="sum-empty-text"></p>
+            <p id="sum-first-use" hidden>Comece por registar uma despesa ou experimente com dados de exemplo.</p>
+            <div class="empty-actions">
+              <button type="button" class="btn btn-primary" id="btn-empty-add"><span aria-hidden="true">＋ </span>Registar despesa</button>
+              <button type="button" class="btn btn-secondary" id="btn-empty-sample" hidden>Carregar dados de exemplo</button>
+            </div>
+          </div>
+          <table class="cat-table" id="sum-table" hidden>
+            <caption>Por categoria</caption>
+            <thead>
+              <tr><th scope="col">Categoria</th><th scope="col" class="num">Total</th><th scope="col" class="num">Percentagem</th></tr>
+            </thead>
+            <tbody id="sum-tbody"></tbody>
+          </table>
+        </section>
+
+        <section class="card" aria-labelledby="h-despesas">
+          <h2 id="h-despesas" tabindex="-1">Despesas</h2>
+          <div class="field">
+            <label for="filtro">Filtrar por categoria</label>
+            <select id="filtro"></select>
+          </div>
+          <p id="list-sort-hint" class="visually-hidden">Ordenadas da mais recente para a mais antiga.</p>
+          <ul class="expense-list" id="lista" aria-describedby="list-sort-hint"></ul>
+          <div class="empty-state" id="list-empty" hidden>
+            <p id="list-empty-text"></p>
+            <button type="button" class="btn-link" id="btn-filter-reset" hidden>Mostrar todas as categorias</button>
+          </div>
+        </section>
+      </div>
+
+      <section class="card settings" aria-labelledby="h-definicoes">
+        <h2 id="h-definicoes">Categorias e dados</h2>
+        <div class="settings-grid">
+          <div>
+            <h3 id="h-categorias" tabindex="-1">Categorias</h3>
+            <ul class="cat-list" id="cat-list"></ul>
+            <form class="cat-add" id="cat-add-form" novalidate>
+              <div class="field">
+                <label for="cat-new">Nova categoria</label>
+                <div class="inline-controls">
+                  <input type="text" id="cat-new" autocomplete="off">
+                  <button type="submit" class="btn btn-secondary">Adicionar categoria</button>
+                </div>
+                <p class="field-error" id="cat-new-error" role="alert" hidden></p>
+              </div>
+            </form>
+          </div>
+          <div>
+            <h3>Dados</h3>
+            <div class="data-actions">
+              <button type="button" class="btn btn-secondary" id="btn-sample">Carregar dados de exemplo</button>
+              <button type="button" class="btn btn-danger-outline" id="btn-reset">Eliminar todos os dados</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container"><p>Protótipo para testes. Os dados de exemplo são fictícios.</p></div>
+  </footer>
+
+  <dialog class="dialog dialog-form" id="dlg-despesa" aria-labelledby="dlg-despesa-title">
+    <form id="form-despesa" novalidate>
+      <div class="dialog-body">
+        <h2 id="dlg-despesa-title">Registar despesa</h2>
+        <p class="hint">Todos os campos são obrigatórios, exceto a descrição.</p>
+        <p class="form-summary" id="form-summary" role="status"></p>
+
+        <div class="field">
+          <label for="f-valor">Valor (€)</label>
+          <div class="input-suffix">
+            <input type="text" id="f-valor" inputmode="decimal" autocomplete="off" aria-describedby="f-valor-hint">
+            <span aria-hidden="true">€</span>
+          </div>
+          <p class="hint" id="f-valor-hint">Exemplo: 12,50</p>
+          <p class="field-error" id="f-valor-error" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="f-data">Data</label>
+          <input type="date" id="f-data" required>
+          <p class="field-error" id="f-data-error" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="f-categoria">Categoria</label>
+          <select id="f-categoria" required></select>
+          <p class="field-error" id="f-categoria-error" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="f-descricao">Descrição (opcional)</label>
+          <input type="text" id="f-descricao" maxlength="100" autocomplete="off" aria-describedby="f-descricao-count">
+          <p class="hint" id="f-descricao-count"></p>
+          <p class="field-error" id="f-descricao-error" hidden></p>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button type="button" class="btn btn-secondary" id="f-cancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="f-save">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dialog" id="dlg-confirmar" aria-labelledby="dlg-confirmar-title" aria-describedby="dlg-confirmar-body">
+    <div class="dialog-body">
+      <h2 id="dlg-confirmar-title"></h2>
+      <div id="dlg-confirmar-body"></div>
+    </div>
+    <div class="dialog-footer">
+      <button type="button" class="btn btn-secondary" id="c-cancel">Cancelar</button>
+      <button type="button" class="btn btn-danger" id="c-ok"></button>
+    </div>
+  </dialog>
+</body>
+</html>
